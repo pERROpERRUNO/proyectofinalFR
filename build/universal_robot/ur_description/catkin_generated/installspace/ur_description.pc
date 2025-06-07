@@ -1,0 +1,8 @@
+prefix=/home/atangana09/proyecto/install
+
+Name: ur_description
+Description: Description of ur_description
+Version: 1.2.5
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

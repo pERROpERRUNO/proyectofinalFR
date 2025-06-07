@@ -1,0 +1,13 @@
+<launch>
+  <!-- Cargar el URDF -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find universal_robot)/urdf/myrobot.urdf'" />
+
+  <!-- Sliders para articulaciones -->
+  <node name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+
+  <!-- Publicador de transformaciones -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+  <!-- Lanzar RViz con la vista guardada -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find universal_robot)/rviz/config.rviz" />
+</launch>

@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+
+import rospy
+from sensor_msgs.msg import JointState
+
+from markers import *
+from proyectfunctions import *
+
+if __name__ == '__main__':
+    
+    rospy.init_node("testForwardKine")
+    pub = rospy.Publisher('joint_states', JointState, queue_size=10)
+    bmarker = BallMarker(color['GREEN'])
+
+    # Nombres de las articulaciones
+    jnames = ['q1','q2','q3','q4','q5','q6','q7','q8']
+    # Configuracion articular 
+    q = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+
+    # Posicion del efector final con respecto a la base
+    T = fkine(q)
+    print( np.round(T, 3) )
+    bmarker.position(T)
+
+    # Lee el mensaje del tipo JointState
+    jstate = JointState()
+    # Valores del mensaje
+    jstate.header.stamp = rospy.Time.now()
+    jstate.name = jnames
+    # Le da los valores a la configuracion articular
+    jstate.position = q
+
+    # Frecuencia del loop (in Hz)
+    rate = rospy.Rate(100)
+    # Ejecucion continua del loop
+    while not rospy.is_shutdown():
+        # Tiempo actual (necesario para ROS)
+        jstate.header.stamp = rospy.Time.now()
+        # Publica el mensaje
+        pub.publish(jstate)
+        bmarker.publish()
+        # Espera a la siguiente iteracion
+        rate.sleep()
+

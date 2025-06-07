@@ -1,0 +1,8 @@
+prefix=/home/atangana09/proyecto/install
+
+Name: frproyect
+Description: Description of frproyect
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

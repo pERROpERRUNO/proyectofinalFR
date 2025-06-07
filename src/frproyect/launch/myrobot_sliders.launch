@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <!-- Cargar el URDF directamente (sin xacro porque es .urdf) -->
+  <param name="robot_description" textfile="$(find universal_robot)/urdf/myrobot.urdf" />
+
+  <!-- Publicador manual de los sliders -->
+  <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+
+  <!-- Publicador del estado del robot -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+  <!-- Lanzar RViz con una configuración personalizada -->
+  <node pkg="rviz" type="rviz" name="rviz" required="true"
+        args="-d $(find universal_robot)/rviz/myrobot.rviz" />
+  
+</launch>
