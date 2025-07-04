@@ -1,0 +1,204 @@
+#!/usr/bin/env python3
+
+import rospy
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from sensor_msgs.msg import JointState
+
+from markers import *
+from proyectfunctions import *
+import time
+
+if __name__ == '__main__':
+
+    # Inicializa el nodo
+    rospy.init_node("testKineControlPosition")
+    print('starting motion ... ')
+    # Publica al topico joint_states
+    pub = rospy.Publisher('joint_states', JointState, queue_size=10)
+    # Archivos para guardar la data
+    fqact = open("/tmp/qactual.txt", "w")
+    fxact = open("/tmp/xactual.txt", "w")
+    fxdes = open("/tmp/xdeseado.txt", "w")
+    # Marker para posicion deseada y actual
+    bmarker_current  = BallMarker(color['RED'])
+    bmarker_desired = BallMarker(color['GREEN'])
+
+    # Nombres de las articulaciones
+    jnames = ['q1','q2','q3','q4','q5','q6','q7','q8']
+
+    # Posicion deseada
+    xdes = np.array([0.8, 0.2, 0.8])
+    # Configuracion articular inicial
+    q0 = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+
+    # Posicion inicial resultante (efector final con respecto al link de la base)
+    T = fkine(q0)
+    x0 = T[0:3,3]
+
+    # Marker rojo muestra la posicion actual
+    bmarker_current.xyz(x0)
+    # Marker verde muestra la posicion deseada
+    bmarker_desired.xyz(xdes)
+
+    # Instancia del mensaje JointState
+    jstate = JointState()
+    # Valor del mensaje
+    jstate.header.stamp = rospy.Time.now()
+    jstate.name = jnames
+    # Asigna el valor a las articulaciones
+    jstate.position = q0
+
+    # Frecuencia (en Hz) y periodo del control
+    freq = 200
+    dt = 1.0/freq
+    rate = rospy.Rate(freq)
+
+    t = 0.0
+    # Configuracion articular incial
+    q = copy(q0)
+    # Main loop
+    while not rospy.is_shutdown():
+        # Tiempo actual (necesario para ROS)
+        jstate.header.stamp = rospy.Time.now()
+
+        # Ley de control cinematica para posicion
+        # -----------------------------
+        #error = (x-xdes)
+        x = fkine(q)[0:3,3]
+        e = np.subtract(x.T,xdes)
+        k = 0.5
+        edot = np.dot(-k, e)
+	
+	      #Pseudoinversa de J
+        J = jacobian_position(q)
+        Jpseudo = np.linalg.pinv(J)
+
+        qdot = np.dot(Jpseudo, edot)
+        q = q + np.dot(dt, qdot)
+        limitJoints(q)
+        # -----------------------------
+
+        # Almacenamiento de datos
+        fxact.write(str(t)+' '+str(x[0])+' '+str(x[1])+' '+str(x[2])+'\n')
+        fxdes.write(str(t)+' '+str(xdes[0])+' '+str(xdes[1])+' '+str(xdes[2])+'\n')
+        fqact.write(str(t)+' '+str(q[0])+' '+str(q[1])+' '+ str(q[2])+' '+ str(q[3])+' '+str(q[4])+' '+str(q[5])+' '+str(q[6])+' '+str(q[7])+'\n ')
+
+        # Publica el mensaje
+        jstate.position = q
+        pub.publish(jstate)
+        bmarker_desired.xyz(xdes)
+        bmarker_current.xyz(x)
+        t = t+dt
+        # Espera a la siguiente iteración
+        rate.sleep()
+
+    print('ending motion ...')
+    fqact.close()
+
+    fxact.close()
+    fxdes.close()
+
+#--------------------------------------------------------------------------------------------------  
+    # Leer data
+    qcurrent_data = np.loadtxt("/tmp/qactual.txt")
+
+    # Genera el vector tiempo
+    num_samples = qcurrent_data.shape[0]
+    time = np.linspace(0, num_samples / freq, num_samples)
+
+    # Plotea
+    plt.figure(figsize=(10, 8))
+
+    plt.subplot(3, 3, 1)
+    plt.plot(time, qcurrent_data[:, 1], label='Actual')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Angle [rad]')
+    plt.legend()
+    plt.title('q1 vs t')
+
+    plt.subplot(3, 3, 2)
+    plt.plot(time, qcurrent_data[:, 2], label='Actual')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Angle [rad]')
+    plt.legend()
+    plt.title('q2 vs t')
+
+    plt.subplot(3, 3, 3)
+    plt.plot(time, qcurrent_data[:, 3], label='Actual')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Angle [rad]')
+    plt.legend()
+    plt.title('q3 vs t')
+ 
+    plt.subplot(3, 3, 4)
+    plt.plot(time, qcurrent_data[:, 4], label='Actual')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Angle [rad]')
+    plt.legend()
+    plt.title('q4 vs t')
+   
+    plt.subplot(3, 3, 5)
+    plt.plot(time, qcurrent_data[:, 5], label='Actual')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Angle [rad]')
+    plt.legend()
+    plt.title('q5 vs t')    
+ 
+    plt.subplot(3, 3, 6)
+    plt.plot(time, qcurrent_data[:, 6], label='Actual')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Angle [rad]')
+    plt.legend()
+    plt.title('q6 vs t')
+  
+    plt.subplot(3, 3, 7)
+    plt.plot(time, qcurrent_data[:, 7], label='Actual')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Angle [rad]')
+    plt.legend()
+    plt.title('q7 vs t')
+
+    plt.subplot(3, 3, 8)
+    plt.plot(time, qcurrent_data[:, 8], label='Actual')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Angle [rad]')
+    plt.legend()
+    plt.title('q8 vs t')
+
+    plt.tight_layout()
+#----------------------------------------------------------------------------------------
+  # Leer data
+    xcurrent_data = np.loadtxt("/tmp/xactual.txt")
+    xdesired_data = np.loadtxt("/tmp/xdeseado.txt")
+    # Genera el vector tiempo
+    num_samples = xcurrent_data.shape[0]
+    time = np.linspace(0, num_samples / freq, num_samples)
+
+  # Plotea
+    plt.figure(figsize=(10, 8))
+
+    plt.subplot(3, 1, 1)
+    plt.plot(time, xcurrent_data[:, 1], label='Actual X')
+    plt.plot(time, xdesired_data[:, 1], label='Desired X', linestyle='--')
+    plt.xlabel('Time [s]')
+    plt.ylabel('X Position [m]')
+    plt.legend()
+
+    plt.subplot(3, 1, 2)
+    plt.plot(time, xcurrent_data[:, 2], label='Actual Y')
+    plt.plot(time, xdesired_data[:, 2], label='Desired Y', linestyle='--')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Y Position [m]')
+    plt.legend()
+
+    plt.subplot(3, 1, 3)
+    plt.plot(time, xcurrent_data[:, 3], label='Actual Z')
+    plt.plot(time, xdesired_data[:, 3], label='Desired Z', linestyle='--')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Z Position [m]')
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+

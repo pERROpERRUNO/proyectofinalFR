@@ -1,0 +1,23 @@
+kr20:
+  kr20_joint_controller:
+    type: "position_controllers/JointTrajectoryController"
+    joints:
+      - q1
+      - q2
+      - q3
+      - q4
+      - q5
+      - q6
+      - q7
+      - q8
+
+    gains:
+      q1: {p: 30000, d: 900, i: 100, i_clamp: 0}
+      q2:   {p: 24000, d: 800, i: 100, i_clamp: 0}
+      q3:   {p: 20000, d: 700, i: 100, i_clamp: 0}
+      q4:   {p: 18000, d: 700, i: 100, i_clamp: 0}
+      q5:   {p: 18000, d: 700, i: 100, i_clamp: 0}
+      q6:   {p: 18000, d: 500, i: 100, i_clamp: 0}
+      q7:   {p: 18000, d: 500, i: 100, i_clamp: 0}
+      q8:   {p: 18000, d: 500, i: 100, i_clamp: 0}
+

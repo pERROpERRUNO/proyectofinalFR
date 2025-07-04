@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+import rospy
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+
+def send_trajectory():
+    rospy.init_node('kr20_trajectory_sender')
+
+    pub = rospy.Publisher('/kr20/kr20_joint_controller/command', JointTrajectory, queue_size=10)
+
+    rospy.sleep(2)  # Espera a que todo cargue
+
+    traj = JointTrajectory()
+    traj.joint_names = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8']
+
+    point = JointTrajectoryPoint()
+    # POSICIONES DESEADAS (ajusta a lo que necesites)
+    point.positions = [0.2, 0.02, -0.4, 0.5, -0.3, 0.1, 0.2, 0.01]
+    point.time_from_start = rospy.Duration(5.0)  # Tiempo para alcanzar posición
+
+    traj.points.append(point)
+
+    rospy.loginfo("Enviando trayectoria al robot KR20 en Gazebo...")
+    pub.publish(traj)
+
+if __name__ == '__main__':
+    try:
+        send_trajectory()
+    except rospy.ROSInterruptException:
+        pass

@@ -15,9 +15,9 @@
   </joint>
   <link name="base_link">
     <inertial>
-      <mass value="414.0"/>
+      <mass value="36.629"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <inertia ixx="97670000" ixy="0" ixz="0" iyy="97670000" iyz="0" izz="2170000"/>
+      <inertia ixx="184.1" ixy="0" ixz="0" iyy="184.1" iyz="0" izz="283.7"/>
     </inertial>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -33,12 +33,6 @@
       <material name="Grey"/>
     </visual>
   </link>
-  <material name="DarkGreen">
-    <color rgba="0 0.36 0.012 1.0"/>
-  </material>
-  <material name="LightGreen">
-    <color rgba="0.82 0.95 0.82 1.0"/>
-  </material>
   <material name="Orange">
     <color rgba="1.0 0.5 0.0 1.0"/>
   </material>
@@ -372,5 +366,12 @@
       <material name="Grey"/>
     </visual>
   </link>
+<!-- Este bloque activa el controller_manager de Gazebo -->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/kr20</robotNamespace>
+    </plugin>
+  </gazebo>
+
 </robot>
 

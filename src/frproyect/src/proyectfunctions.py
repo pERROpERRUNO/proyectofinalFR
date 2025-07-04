@@ -1,5 +1,6 @@
 import numpy as np
 from copy import copy
+import rbdl
 
 pi = np.pi
 cos = np.cos
@@ -153,7 +154,27 @@ def jacobian_position(q, delta=0.0001):
 	
     return J
 
+class Robot(object):
+    def __init__(self, q0, dq0, ndof, dt):
+        self.q = q0    # numpy array (ndof x 1)
+        self.dq = dq0  # numpy array (ndof x 1)
+        self.M = np.zeros([ndof, ndof])
+        self.b = np.zeros(ndof)
+        self.dt = dt
+        self.robot = rbdl.loadModel('/home/atangana09/proyecto/src/robot/universal_robot/urdf/myrobot.urdf')
 
+    def send_command(self, tau):
+        rbdl.CompositeRigidBodyAlgorithm(self.robot, self.q, self.M)
+        rbdl.NonlinearEffects(self.robot, self.q, self.dq, self.b)
+        ddq = np.linalg.inv(self.M).dot(tau-self.b)
+        self.q = self.q + self.dt*self.dq
+        self.dq = self.dq + self.dt*ddq
+
+    def read_joint_positions(self):
+        return self.q
+
+    def read_joint_velocities(self):
+        return self.dq
 
 
 

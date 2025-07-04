@@ -18,7 +18,11 @@ if __name__ == '__main__':
     jnames = ['q1','q2','q3','q4','q5','q6','q7','q8']
 
     # Desired position
-    xd = np.array([1, 1, 1])
+    xd = np.array([0.8, 0.0, 1.5])
+    #xd = np.array([1.2, 0.5, 1.0]) 
+    #xd = np.array([0.6, -0.7, 0.8])
+    #xd = np.array([1.0, 0.0, 0.4])
+    #xd = np.array([1, 1, 1])
     # Initial configuration
     q0 = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
     # Inverse kinematics
